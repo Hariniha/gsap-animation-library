@@ -1,6 +1,6 @@
 {
-  "name": "gsap-animation-library",
-  "version": "1.0.1",
+  "name": "@hariniha/gsap-animation-library",
+  "version": "1.0.0",
   "description": "A complete GSAP animation wrapper library with 15+ animation presets, timeline control, stagger effects, and scroll triggers",
   "main": "gsap-animation-library.js",
   "scripts": {
