@@ -2,16 +2,25 @@
 
 A powerful animation wrapper library built on GSAP 3.x with 15+ animation presets, timeline management, and scroll triggers.
 
+[![npm version](https://img.shields.io/npm/v/@harini_priya/gsap-animation-library.svg)](https://www.npmjs.com/package/@harini_priya/gsap-animation-library)
+[![license](https://img.shields.io/npm/l/@harini_priya/gsap-animation-library.svg)](https://github.com/Hariniha/gsap-animation-library/blob/main/LICENSE)
+
+## 🔗 Links
+
+- **[📺 Live Demo](https://your-demo-url.vercel.app)** - Interactive demo with live code generation
+- **[📚 Complete Documentation](https://github.com/Hariniha/gsap-animation-library/blob/main/USAGE.md)** - Full usage guide with examples
+- **[📦 npm Package](https://www.npmjs.com/package/@harini_priya/gsap-animation-library)**
+
 ## Installation
 
 ```bash
-npm install gsap gsap-animation-library
+npm install gsap @harini_priya/gsap-animation-library
 ```
 
 ## Quick Start
 
 ```javascript
-import GSAPAnimationLibrary from 'gsap-animation-library';
+import GSAPAnimationLibrary from '@harini_priya/gsap-animation-library';
 
 const gsapLib = new GSAPAnimationLibrary();
 gsapLib.fadeIn(element, { duration: 1, ease: 'power2.out' });
