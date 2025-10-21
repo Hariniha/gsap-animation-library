@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSAP Animation Library - Interactive Demo</title>
+    <meta name="description" content="A complete GSAP animation wrapper library with 15+ presets. Install via npm and use in React, Vue, Angular, or vanilla JS.">
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #root {
+            width: 100%;
+            min-height: 100vh;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 24px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Fix for select dropdown options visibility */
+        select option {
+            background: #2a2a2a;
+            color: #e0e0e0;
+            padding: 10px;
+        }
+        
+        /* Enhanced range slider styling */
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"><div class="loading">Loading Interactive Demo...</div></div>
+    
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // ==================== GSAP ANIMATION LIBRARY ====================
+
+        class GSAPAnimationLibrary {
+            constructor() {
+                this.activeAnimations = new Set();
+                this.timelines = new Map();
+                
+                if (typeof ScrollTrigger !== 'undefined') {
+                    gsap.registerPlugin(ScrollTrigger);
+                }
+            }
+
+            animate(element, properties, options = {}) {
+                const defaults = {
+                    duration: 1,
+                    ease: 'power2.out',
+                    delay: 0,
+                    onComplete: null,
+                    onStart: null,
+                };
+
+                const config = { ...defaults, ...options, ...properties };
+                
+                if (options.onStart) config.onStart = options.onStart;
+                if (options.onComplete) config.onComplete = options.onComplete;
+
+                const animation = gsap.to(element, config);
+                this.activeAnimations.add(animation);
+                
+                return animation;
+            }
+
+            fadeIn(element, options = {}) {
+                gsap.set(element, { opacity: 0 });
+                return this.animate(element, { opacity: 1 }, options);
+            }
+
+            fadeOut(element, options = {}) {
+                return this.animate(element, { opacity: 0 }, options);
+            }
+
+            slideUp(element, options = {}) {
+                const distance = options.distance || 100;
+                gsap.set(element, { y: distance, opacity: 0 });
+                return this.animate(element, { y: 0, opacity: 1 }, options);
+            }
+
+            slideDown(element, options = {}) {
+                const distance = options.distance || 100;
+                gsap.set(element, { y: -distance, opacity: 0 });
+                return this.animate(element, { y: 0, opacity: 1 }, options);
+            }
+
+            slideLeft(element, options = {}) {
+                const distance = options.distance || 100;
+                gsap.set(element, { x: distance, opacity: 0 });
+                return this.animate(element, { x: 0, opacity: 1 }, options);
+            }
+
+            slideRight(element, options = {}) {
+                const distance = options.distance || 100;
+                gsap.set(element, { x: -distance, opacity: 0 });
+                return this.animate(element, { x: 0, opacity: 1 }, options);
+            }
+
+            scaleUp(element, options = {}) {
+                gsap.set(element, { scale: 0, opacity: 0 });
+                return this.animate(element, { scale: 1, opacity: 1 }, { ease: 'back.out(1.7)', ...options });
+            }
+
+            scaleDown(element, options = {}) {
+                return this.animate(element, { scale: 0, opacity: 0 }, { ease: 'back.in(1.7)', ...options });
+            }
+
+            rotateIn(element, options = {}) {
+                gsap.set(element, { rotation: -180, scale: 0, opacity: 0 });
+                return this.animate(element, { rotation: 0, scale: 1, opacity: 1 }, { ease: 'back.out(1.7)', ...options });
+            }
+
+            rotateOut(element, options = {}) {
+                return this.animate(element, { rotation: 180, scale: 0, opacity: 0 }, { ease: 'back.in(1.7)', ...options });
+            }
+
+            bounceIn(element, options = {}) {
+                gsap.set(element, { y: -100, opacity: 0 });
+                return this.animate(element, { y: 0, opacity: 1 }, { ease: 'bounce.out', duration: 1.5, ...options });
+            }
+
+            elastic(element, options = {}) {
+                gsap.set(element, { scale: 0, opacity: 0 });
+                return this.animate(element, { scale: 1, opacity: 1 }, { ease: 'elastic.out(1, 0.5)', duration: 1.5, ...options });
+            }
+
+            flip(element, options = {}) {
+                return this.animate(element, { rotationY: 360 }, { duration: 1, ...options });
+            }
+
+            shake(element, options = {}) {
+                const tl = gsap.timeline();
+                const intensity = options.intensity || 10;
+                
+                tl.to(element, { x: -intensity, duration: 0.1 })
+                  .to(element, { x: intensity, duration: 0.1 })
+                  .to(element, { x: -intensity, duration: 0.1 })
+                  .to(element, { x: intensity, duration: 0.1 })
+                  .to(element, { x: 0, duration: 0.1 });
+                
+                return tl;
+            }
+
+            pulse(element, options = {}) {
+                const tl = gsap.timeline({ repeat: options.repeat || 2 });
+                tl.to(element, { scale: 1.1, duration: 0.3 })
+                  .to(element, { scale: 1, duration: 0.3 });
+                return tl;
+            }
+
+            staggerFadeIn(elements, options = {}) {
+                gsap.set(elements, { opacity: 0 });
+                return gsap.to(elements, {
+                    opacity: 1,
+                    duration: options.duration || 1,
+                    stagger: options.stagger || 0.2,
+                    ease: options.ease || 'power2.out',
+                    delay: options.delay || 0
+                });
+            }
+
+            staggerSlideUp(elements, options = {}) {
+                const distance = options.distance || 50;
+                gsap.set(elements, { y: distance, opacity: 0 });
+                return gsap.to(elements, {
+                    y: 0,
+                    opacity: 1,
+                    duration: options.duration || 1,
+                    stagger: options.stagger || 0.2,
+                    ease: options.ease || 'power2.out',
+                    delay: options.delay || 0
+                });
+            }
+
+            staggerScale(elements, options = {}) {
+                gsap.set(elements, { scale: 0, opacity: 0 });
+                return gsap.to(elements, {
+                    scale: 1,
+                    opacity: 1,
+                    duration: options.duration || 1,
+                    stagger: options.stagger || 0.2,
+                    ease: options.ease || 'back.out(1.7)',
+                    delay: options.delay || 0
+                });
+            }
+
+            createTimeline(name, options = {}) {
+                const timeline = gsap.timeline(options);
+                this.timelines.set(name, timeline);
+                return timeline;
+            }
+
+            getTimeline(name) {
+                return this.timelines.get(name);
+            }
+
+            playTimeline(name) {
+                const timeline = this.timelines.get(name);
+                if (timeline) timeline.play();
+            }
+
+            pauseTimeline(name) {
+                const timeline = this.timelines.get(name);
+                if (timeline) timeline.pause();
+            }
+
+            reverseTimeline(name) {
+                const timeline = this.timelines.get(name);
+                if (timeline) timeline.reverse();
+            }
+
+            restartTimeline(name) {
+                const timeline = this.timelines.get(name);
+                if (timeline) timeline.restart();
+            }
+
+            scrollTrigger(element, animation, options = {}) {
+                if (typeof ScrollTrigger === 'undefined') {
+                    console.warn('ScrollTrigger plugin not loaded');
+                    return null;
+                }
+
+                return ScrollTrigger.create({
+                    trigger: element,
+                    start: options.start || 'top 80%',
+                    end: options.end || 'bottom 20%',
+                    onEnter: () => animation(),
+                    markers: options.markers || false,
+                    ...options
+                });
+            }
+
+            killAll() {
+                this.activeAnimations.forEach(anim => anim.kill());
+                this.activeAnimations.clear();
+                gsap.killTweensOf('*');
+            }
+
+            killAnimation(animation) {
+                if (animation) {
+                    animation.kill();
+                    this.activeAnimations.delete(animation);
+                }
+            }
+
+            resetElement(element) {
+                gsap.set(element, { clearProps: 'x,y,scale,rotation,opacity,transform' });
+            }
+        }
+
+        // ==================== REACT COMPONENT ====================
+
+        const GSAPAnimationDemo = () => {
+            const [activeTab, setActiveTab] = useState('basic');
+            const [duration, setDuration] = useState(1);
+            const [delay, setDelay] = useState(0);
+            const [easing, setEasing] = useState('power2.out');
+            const [stagger, setStagger] = useState(0.2);
+            const [codeSnippet, setCodeSnippet] = useState('');
+            const [showCode, setShowCode] = useState(false);
+            const [timelineState, setTimelineState] = useState('stopped');
+
+            const demoBoxRef = useRef(null);
+            const multiBoxRefs = useRef([]);
+            const cardRefs = useRef([]);
+            const textRef = useRef(null);
+            const timelineBoxRef = useRef(null);
+            
+            const gsapLib = useRef(new GSAPAnimationLibrary());
+
+            // Refs for UI animations
+            const sidebarRef = useRef(null);
+            const headerRef = useRef(null);
+            const tabsRef = useRef(null);
+            const controlPanelRef = useRef(null);
+            const contentAreaRef = useRef(null);
+
+            // Initial page load animations
+            useEffect(() => {
+                const ctx = gsap.context(() => {
+                    // Animate sidebar
+                    gsap.from(sidebarRef.current, {
+                        x: -100,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: 'power3.out'
+                    });
+
+                    // Animate header
+                    gsap.from(headerRef.current, {
+                        y: -100,
+                        opacity: 0,
+                        duration: 1,
+                        ease: 'elastic.out(1, 0.5)'
+                    });
+
+                    // Animate tabs
+                    const tabs = document.querySelectorAll('.tab');
+                    gsap.from(tabs, {
+                        scale: 0,
+                        opacity: 0,
+                        duration: 0.6,
+                        stagger: 0.1,
+                        ease: 'back.out(1.7)',
+                        delay: 0.3,
+                        clearProps: 'transform,opacity' // Only clear animation properties
+                    });
+
+                    // Animate control panel
+                    gsap.from(controlPanelRef.current, {
+                        x: -100,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: 'power3.out',
+                        delay: 0.6
+                    });
+
+                    // Animate content area
+                    gsap.from(contentAreaRef.current, {
+                        scale: 0.8,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: 'back.out(1.7)',
+                        delay: 0.9
+                    });
+
+                    // Floating animation for title
+                    gsap.to('.title-float', {
+                        y: -10,
+                        duration: 2,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: 'sine.inOut'
+                    });
+                });
+
+                return () => {
+                    ctx.revert();
+                    gsapLib.current.killAll();
+                };
+            }, []);
+
+            // Button hover animations
+            const handleButtonHover = (e) => {
+                gsap.to(e.currentTarget, {
+                    scale: 1.05,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            };
+
+            const handleButtonLeave = (e) => {
+                gsap.to(e.currentTarget, {
+                    scale: 1,
+                    duration: 0.3,
+                    ease: 'power2.out'
+                });
+            };
+
+            // Tab switch animation
+            const handleTabSwitch = (tab) => {
+                // Animate out current content
+                gsap.to(contentAreaRef.current, {
+                    opacity: 0,
+                    scale: 0.95,
+                    duration: 0.2,
+                    onComplete: () => {
+                        setActiveTab(tab);
+                        // Animate in new content
+                        gsap.to(contentAreaRef.current, {
+                            opacity: 1,
+                            scale: 1,
+                            duration: 0.4,
+                            ease: 'back.out(1.7)'
+                        });
+                    }
+                });
+            };
+
+            useEffect(() => {
+                return () => {
+                    gsapLib.current.killAll();
+                };
+            }, []);
+
+            const generateCode = (animationType, options = {}) => {
+                const optionsStr = Object.keys(options).length > 0 
+                    ? `, ${JSON.stringify(options, null, 2)}` 
+                    : '';
+                return `gsapLib.${animationType}(element${optionsStr});`;
+            };
+
+            const runAnimation = (type) => {
+                const element = demoBoxRef.current;
+                if (!element) return;
+
+                gsapLib.current.resetElement(element);
+                
+                const options = { duration, delay, ease: easing };
+                let code = '';
+
+                const animations = {
+                    fadeIn: () => gsapLib.current.fadeIn(element, options),
+                    fadeOut: () => gsapLib.current.fadeOut(element, options),
+                    slideUp: () => gsapLib.current.slideUp(element, options),
+                    slideDown: () => gsapLib.current.slideDown(element, options),
+                    slideLeft: () => gsapLib.current.slideLeft(element, options),
+                    slideRight: () => gsapLib.current.slideRight(element, options),
+                    scaleUp: () => gsapLib.current.scaleUp(element, options),
+                    scaleDown: () => gsapLib.current.scaleDown(element, options),
+                    rotateIn: () => gsapLib.current.rotateIn(element, options),
+                    rotateOut: () => gsapLib.current.rotateOut(element, options),
+                    bounceIn: () => gsapLib.current.bounceIn(element, options),
+                    elastic: () => gsapLib.current.elastic(element, options),
+                    flip: () => gsapLib.current.flip(element, options),
+                    shake: () => gsapLib.current.shake(element, { intensity: 15 }),
+                    pulse: () => gsapLib.current.pulse(element, { repeat: 2 }),
+                };
+
+                if (animations[type]) {
+                    animations[type]();
+                    code = generateCode(type, type === 'shake' ? { intensity: 15 } : type === 'pulse' ? { repeat: 2 } : options);
+                }
+
+                setCodeSnippet(code);
+                setShowCode(true);
+            };
+
+            const runStaggerAnimation = (type) => {
+                const elements = multiBoxRefs.current.filter(el => el !== null);
+                if (elements.length === 0) return;
+
+                elements.forEach(el => gsapLib.current.resetElement(el));
+
+                const options = { duration, delay, ease: easing, stagger };
+                let code = '';
+
+                const staggerAnimations = {
+                    staggerFadeIn: () => gsapLib.current.staggerFadeIn(elements, options),
+                    staggerSlideUp: () => gsapLib.current.staggerSlideUp(elements, options),
+                    staggerScale: () => gsapLib.current.staggerScale(elements, options),
+                };
+
+                if (staggerAnimations[type]) {
+                    staggerAnimations[type]();
+                    code = generateCode(type, options);
+                }
+
+                setCodeSnippet(code);
+                setShowCode(true);
+            };
+
+            const setupTimeline = () => {
+                const element = timelineBoxRef.current;
+                if (!element) return;
+
+                gsapLib.current.resetElement(element);
+
+                const tl = gsapLib.current.createTimeline('demo', {
+                    paused: true,
+                    onComplete: () => setTimelineState('completed')
+                });
+
+                tl.to(element, { x: 200, duration: duration, ease: easing })
+                  .to(element, { y: 100, duration: duration, ease: easing })
+                  .to(element, { rotation: 360, duration: duration, ease: easing })
+                  .to(element, { scale: 1.5, duration: duration * 0.5, ease: easing })
+                  .to(element, { scale: 1, duration: duration * 0.5, ease: easing })
+                  .to(element, { x: 0, y: 0, duration: duration, ease: easing });
+
+                const code = `const tl = gsap.timeline();
+tl.to(element, { x: 200, duration: ${duration}, ease: "${easing}" })
+  .to(element, { y: 100, duration: ${duration}, ease: "${easing}" })
+  .to(element, { rotation: 360, duration: ${duration}, ease: "${easing}" })
+  .to(element, { scale: 1.5, duration: ${duration * 0.5}, ease: "${easing}" })
+  .to(element, { scale: 1, duration: ${duration * 0.5}, ease: "${easing}" })
+  .to(element, { x: 0, y: 0, duration: ${duration}, ease: "${easing}" });`;
+
+                setCodeSnippet(code);
+                setShowCode(true);
+            };
+
+            const controlTimeline = (action) => {
+                const actions = {
+                    play: () => { gsapLib.current.playTimeline('demo'); setTimelineState('playing'); },
+                    pause: () => { gsapLib.current.pauseTimeline('demo'); setTimelineState('paused'); },
+                    reverse: () => { gsapLib.current.reverseTimeline('demo'); setTimelineState('reversing'); },
+                    restart: () => { gsapLib.current.restartTimeline('demo'); setTimelineState('playing'); },
+                };
+
+                if (actions[action]) actions[action]();
+            };
+
+            const animateCards = () => {
+                const cards = cardRefs.current.filter(el => el !== null);
+                cards.forEach(card => gsapLib.current.resetElement(card));
+
+                cards.forEach((card, index) => {
+                    const animations = ['slideUp', 'scaleUp', 'rotateIn'];
+                    const animType = animations[index % animations.length];
+                    
+                    gsapLib.current[animType](card, {
+                        duration: duration,
+                        delay: index * stagger,
+                        ease: easing
+                    });
+                });
+
+                const code = `cards.forEach((card, i) => {
+  gsapLib.slideUp(card, {
+    duration: ${duration},
+    delay: i * ${stagger},
+    ease: "${easing}"
+  });
+});`;
+                setCodeSnippet(code);
+                setShowCode(true);
+            };
+
+            const resetAll = () => {
+                gsapLib.current.killAll();
+                
+                [demoBoxRef.current, timelineBoxRef.current, textRef.current].forEach(el => {
+                    if (el) gsapLib.current.resetElement(el);
+                });
+
+                [...multiBoxRefs.current, ...cardRefs.current].forEach(el => {
+                    if (el) gsapLib.current.resetElement(el);
+                });
+
+                setTimelineState('stopped');
+            };
+
+            const easingOptions = [
+                'none', 'power1.out', 'power2.out', 'power3.out', 'power4.out',
+                'power1.in', 'power2.in', 'power3.in', 'power4.in',
+                'power1.inOut', 'power2.inOut', 'power3.inOut', 'power4.inOut',
+                'back.out(1.7)', 'back.in(1.7)', 'back.inOut(1.7)',
+                'elastic.out(1, 0.5)', 'elastic.in(1, 0.5)', 'elastic.inOut(1, 0.5)',
+                'bounce.out', 'bounce.in', 'bounce.inOut',
+                'circ.out', 'circ.in', 'circ.inOut',
+                'expo.out', 'expo.in', 'expo.inOut'
+            ];
+
+            return React.createElement('div', { style: styles.container },
+                React.createElement('div', { style: styles.mainWrapper },
+                    // Left Sidebar - Quick Start & Features
+                    React.createElement('aside', { ref: sidebarRef, style: styles.sidebar },
+                        React.createElement('div', { style: styles.sidebarSection },
+                            React.createElement('h3', { style: styles.sidebarTitle }, 'Quick Start'),
+                            React.createElement('div', { style: styles.sidebarContent },
+                                React.createElement('p', { style: styles.sidebarStep }, '1. Install via npm:'),
+                                React.createElement('code', { style: styles.sidebarCode }, 'npm install gsap gsap-animation-library'),
+                                React.createElement('p', { style: styles.sidebarStep }, '2. Import and use:'),
+                                React.createElement('code', { style: styles.sidebarCode }, 'import GSAPAnimationLibrary from "gsap-animation-library";'),
+                                React.createElement('code', { style: styles.sidebarCode }, 'const gsapLib = new GSAPAnimationLibrary();'),
+                                React.createElement('code', { style: styles.sidebarCode }, 'gsapLib.fadeIn(element, {duration: 1});')
+                            )
+                        ),
+                        React.createElement('div', { style: styles.sidebarSection },
+                            React.createElement('h3', { style: styles.sidebarTitle }, 'Features'),
+                            React.createElement('ul', { style: styles.featureList },
+                                React.createElement('li', null, '15+ Animation Presets'),
+                                React.createElement('li', null, 'Timeline Management'),
+                                React.createElement('li', null, 'Stagger Effects'),
+                                React.createElement('li', null, 'Scroll Triggers'),
+                                React.createElement('li', null, 'React/Vue/Angular Compatible'),
+                                React.createElement('li', null, 'Lightweight & Fast')
+                            )
+                        ),
+                        React.createElement('div', { style: styles.sidebarSection },
+                            React.createElement('h3', { style: styles.sidebarTitle }, 'Resources'),
+                            React.createElement('ul', { style: styles.featureList },
+                                React.createElement('li', null, 'USAGE.md - Complete Documentation'),
+                                React.createElement('li', null, 'examples.js - 16 Real Examples'),
+                                React.createElement('li', null, 'README.md - API Reference'),
+                                React.createElement('li', null, 'gsap-animation-library.js - Source'),
+                                React.createElement('li', null, 'MIT Licensed'),
+                                React.createElement('li', null, 'Ready for Production')
+                            )
+                        ),
+                        React.createElement('p', { style: styles.sidebarFooter }, 'Built with GSAP 3.12.2 | v1.0.0 | MIT License')
+                    ),
+
+                    // Main Content Area
+                    React.createElement('main', { style: styles.mainContent },
+                        // Header
+                        React.createElement('header', { ref: headerRef, style: styles.header },
+                            React.createElement('h1', { className: 'title-float', style: styles.title }, 'GSAP Animation Library'),
+                            React.createElement('p', { style: styles.subtitle }, 'A Complete Animation Wrapper Library with 15+ Presets'),
+                            React.createElement('p', { style: styles.usageNote }, 'Interactive Demo - Adjust controls below and see generated code')
+                        ),
+
+                        // Tabs
+                        React.createElement('div', { ref: tabsRef, style: styles.tabContainer },
+                            ['basic', 'stagger', 'timeline', 'cards'].map(tab => {
+                                const labels = {
+                                    'basic': 'Basic Animations',
+                                    'stagger': 'Stagger Effects',
+                                    'timeline': 'Timeline',
+                                    'cards': 'Cards Demo'
+                                };
+                                return React.createElement('button', {
+                                    key: tab,
+                                    className: 'tab',
+                                    style: {...styles.tab, ...(activeTab === tab ? styles.tabActive : {})},
+                                    onClick: () => handleTabSwitch(tab),
+                                    onMouseEnter: handleButtonHover,
+                                    onMouseLeave: handleButtonLeave
+                                }, labels[tab]);
+                            })
+                        ),
+
+                    React.createElement('div', { ref: controlPanelRef, style: styles.controlPanel },
+                        React.createElement('h3', { style: styles.controlTitle }, 'Animation Controls'),
+                        
+                        React.createElement('div', { style: styles.controlGrid },
+                            React.createElement('div', { style: styles.controlGroup },
+                                React.createElement('label', { style: styles.label }, `Duration: ${duration}s`),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0.1',
+                                    max: '3',
+                                    step: '0.1',
+                                    value: duration,
+                                    onChange: (e) => setDuration(parseFloat(e.target.value)),
+                                    style: styles.slider
+                                })
+                            ),
+
+                            React.createElement('div', { style: styles.controlGroup },
+                                React.createElement('label', { style: styles.label }, `Delay: ${delay}s`),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0',
+                                    max: '2',
+                                    step: '0.1',
+                                    value: delay,
+                                    onChange: (e) => setDelay(parseFloat(e.target.value)),
+                                    style: styles.slider
+                                })
+                            ),
+
+                            React.createElement('div', { style: styles.controlGroup },
+                                React.createElement('label', { style: styles.label }, 'Easing'),
+                                React.createElement('select', {
+                                    value: easing,
+                                    onChange: (e) => setEasing(e.target.value),
+                                    style: styles.select
+                                }, easingOptions.map(ease =>
+                                    React.createElement('option', { key: ease, value: ease }, ease)
+                                ))
+                            ),
+
+                            activeTab === 'stagger' && React.createElement('div', { style: styles.controlGroup },
+                                React.createElement('label', { style: styles.label }, `Stagger: ${stagger}s`),
+                                React.createElement('input', {
+                                    type: 'range',
+                                    min: '0.05',
+                                    max: '1',
+                                    step: '0.05',
+                                    value: stagger,
+                                    onChange: (e) => setStagger(parseFloat(e.target.value)),
+                                    style: styles.slider
+                                })
+                            )
+                        ),
+
+                        React.createElement('button', {
+                            onClick: resetAll,
+                            style: styles.resetButton
+                        }, 'Reset All Animations')
+                    ),
+
+                    React.createElement('div', { ref: contentAreaRef, style: styles.contentArea },
+                        activeTab === 'basic' && React.createElement('div', { style: styles.section },
+                            React.createElement('h3', { style: styles.sectionTitle }, 'Basic Animation Presets'),
+                            
+                            React.createElement('div', { style: styles.demoArea },
+                                React.createElement('div', {
+                                    ref: demoBoxRef,
+                                    style: styles.demoBox
+                                }, 'Animate Me!')
+                            ),
+
+                            React.createElement('div', { style: styles.buttonGrid },
+                                ['fadeIn', 'fadeOut', 'slideUp', 'slideDown', 'slideLeft', 'slideRight',
+                                 'scaleUp', 'scaleDown', 'rotateIn', 'rotateOut', 'bounceIn', 'elastic',
+                                 'flip', 'shake', 'pulse'].map(anim =>
+                                    React.createElement('button', {
+                                        key: anim,
+                                        onClick: () => runAnimation(anim),
+                                        style: styles.animButton
+                                    }, anim.replace(/([A-Z])/g, ' $1').trim().replace(/^./, str => str.toUpperCase()))
+                                )
+                            )
+                        ),
+
+                        activeTab === 'stagger' && React.createElement('div', { style: styles.section },
+                            React.createElement('h3', { style: styles.sectionTitle }, 'Stagger Animations'),
+                            
+                            React.createElement('div', { style: styles.demoArea },
+                                React.createElement('div', { style: styles.multiBoxContainer },
+                                    [0, 1, 2, 3, 4].map(index =>
+                                        React.createElement('div', {
+                                            key: index,
+                                            ref: el => multiBoxRefs.current[index] = el,
+                                            style: styles.multiBox
+                                        }, index + 1)
+                                    )
+                                )
+                            ),
+
+                            React.createElement('div', { style: styles.buttonGrid },
+                                ['staggerFadeIn', 'staggerSlideUp', 'staggerScale'].map(anim =>
+                                    React.createElement('button', {
+                                        key: anim,
+                                        onClick: () => runStaggerAnimation(anim),
+                                        style: styles.animButton
+                                    }, anim.replace(/([A-Z])/g, ' $1').trim())
+                                )
+                            )
+                        ),
+
+                        activeTab === 'timeline' && React.createElement('div', { style: styles.section },
+                            React.createElement('h3', { style: styles.sectionTitle }, 'Timeline Animation Sequence'),
+                            
+                            React.createElement('div', { style: styles.demoArea },
+                                React.createElement('div', {
+                                    ref: timelineBoxRef,
+                                    style: {...styles.demoBox, background: '#1db954'}
+                                }, 'Timeline')
+                            ),
+
+                            React.createElement('div', { style: styles.timelineInfo },
+                                React.createElement('p', null, 'Status: ', React.createElement('strong', null, timelineState))
+                            ),
+
+                            React.createElement('div', { style: styles.buttonGrid },
+                                React.createElement('button', { onClick: setupTimeline, style: styles.animButton }, 'Create Timeline'),
+                                React.createElement('button', { onClick: () => controlTimeline('play'), style: styles.animButton }, 'Play'),
+                                React.createElement('button', { onClick: () => controlTimeline('pause'), style: styles.animButton }, 'Pause'),
+                                React.createElement('button', { onClick: () => controlTimeline('reverse'), style: styles.animButton }, 'Reverse'),
+                                React.createElement('button', { onClick: () => controlTimeline('restart'), style: styles.animButton }, 'Restart')
+                            )
+                        ),
+
+                        activeTab === 'cards' && React.createElement('div', { style: styles.section },
+                            React.createElement('h3', { style: styles.sectionTitle }, 'Card Animation Demo'),
+                            
+                            React.createElement('div', { style: styles.cardsContainer },
+                                [
+                                    { title: 'Card 1', icon: 'A', color: '#11998e' },
+                                    { title: 'Card 2', icon: 'B', color: '#56ab2f' },
+                                    { title: 'Card 3', icon: 'C', color: '#1db954' }
+                                ].map((card, index) =>
+                                    React.createElement('div', {
+                                        key: index,
+                                        ref: el => cardRefs.current[index] = el,
+                                        style: {...styles.card, background: card.color}
+                                    },
+                                        React.createElement('div', { style: styles.cardIcon }, card.icon),
+                                        React.createElement('h4', { style: styles.cardTitle }, card.title),
+                                        React.createElement('p', { style: styles.cardText }, 'Beautiful animated card with GSAP')
+                                    )
+                                )
+                            ),
+
+                            React.createElement('div', { style: {textAlign: 'center', marginTop: '30px'} },
+                                React.createElement('button', {
+                                    onClick: animateCards,
+                                    style: {...styles.animButton, fontSize: '18px', padding: '15px 40px'}
+                                }, '🎬 Animate Cards')
+                            )
+                        )
+                    ),
+
+                    showCode && codeSnippet && React.createElement('div', { style: styles.codeContainer },
+                        React.createElement('div', { style: styles.codeHeader },
+                            React.createElement('h4', { style: styles.codeTitle }, 'Generated Code - Copy & Use in Your Project'),
+                            React.createElement('button', {
+                                onClick: () => setShowCode(false),
+                                style: styles.closeButton
+                            }, 'Close')
+                        ),
+                        React.createElement('pre', { style: styles.codeBlock },
+                            React.createElement('code', null, codeSnippet)
+                        )
+                    )
+                ))
+            );
+        };
+
+        // ==================== STYLES ====================
+
+        const styles = {
+            container: {
+                minHeight: '100vh',
+                background: '#1a1a1a',
+                color: '#e0e0e0',
+                fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                display: 'flex'
+            },
+            mainWrapper: {
+                display: 'flex',
+                width: '100%',
+                minHeight: '100vh'
+            },
+            sidebar: {
+                width: '280px',
+                minWidth: '280px',
+                background: '#2a2a2a',
+                borderRight: '1px solid #3a3a3a',
+                padding: '25px 20px',
+                overflowY: 'auto',
+                position: 'sticky',
+                top: 0,
+                height: '100vh',
+                flexShrink: 0
+            },
+            sidebarSection: {
+                marginBottom: '28px'
+            },
+            sidebarTitle: {
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#4ade80',
+                marginBottom: '12px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+            },
+            sidebarContent: {
+                fontSize: '12px',
+                lineHeight: '1.6'
+            },
+            sidebarStep: {
+                color: '#b0b0b0',
+                marginBottom: '6px',
+                fontSize: '11px'
+            },
+            sidebarCode: {
+                display: 'block',
+                background: '#1a1a1a',
+                color: '#4ade80',
+                padding: '6px 10px',
+                borderRadius: '4px',
+                fontSize: '10px',
+                fontFamily: 'Monaco, Consolas, monospace',
+                marginBottom: '8px',
+                border: '1px solid #3a3a3a',
+                overflowX: 'auto',
+                whiteSpace: 'nowrap'
+            },
+            featureList: {
+                listStyle: 'none',
+                padding: 0,
+                margin: 0
+            },
+            featureItem: {
+                padding: '6px 0',
+                borderBottom: '1px solid #3a3a3a',
+                fontSize: '12px',
+                color: '#c0c0c0'
+            },
+            sidebarFooter: {
+                fontSize: '10px',
+                color: '#808080',
+                textAlign: 'center',
+                marginTop: '25px',
+                paddingTop: '15px',
+                borderTop: '1px solid #3a3a3a'
+            },
+            mainContent: {
+                flex: 1,
+                overflowY: 'auto',
+                padding: '30px 40px',
+                maxWidth: '1200px',
+                margin: '0 auto',
+                width: '100%'
+            },
+            header: {
+                textAlign: 'center',
+                marginBottom: '25px',
+                padding: '25px 20px',
+                background: '#2a2a2a',
+                borderRadius: '8px',
+                border: '1px solid #3a3a3a',
+            },
+            title: {
+                fontSize: '28px',
+                fontWeight: 'bold',
+                marginBottom: '8px',
+                color: '#ffffff',
+                letterSpacing: '0.5px',
+            },
+            subtitle: {
+                fontSize: '14px',
+                opacity: 0.7,
+                color: '#b0b0b0',
+                marginBottom: '10px',
+            },
+            installSection: {
+                display: 'flex',
+                gap: '15px',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+                marginBottom: '15px',
+            },
+            installBox: {
+                background: '#333333',
+                padding: '12px 20px',
+                borderRadius: '8px',
+                border: '1px solid #444444',
+            },
+            installTitle: {
+                fontSize: '12px',
+                color: '#888888',
+                marginBottom: '6px',
+                fontWeight: '600',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+            },
+            installCode: {
+                fontSize: '13px',
+                color: '#e0e0e0',
+                fontFamily: 'Consolas, Monaco, monospace',
+                background: '#2a2a2a',
+                padding: '6px 10px',
+                borderRadius: '4px',
+                display: 'block',
+            },
+            usageNote: {
+                fontSize: '13px',
+                opacity: 0.6,
+                color: '#b0b0b0',
+                fontStyle: 'italic',
+            },
+            tabContainer: {
+                display: 'flex',
+                gap: '0',
+                marginBottom: '25px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+                width: '100%',
+                background: '#2a2a2a',
+                borderRadius: '8px',
+                padding: '4px',
+            },
+            tab: {
+                padding: '12px 24px',
+                border: 'none',
+                background: 'transparent',
+                color: '#888888',
+                fontSize: '14px',
+                fontWeight: '500',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                whiteSpace: 'nowrap',
+            },
+            tabActive: {
+                background: '#3a3a3a',
+                color: '#ffffff',
+                transform: 'none',
+                boxShadow: 'none',
+            },
+            controlPanel: {
+                background: '#2a2a2a',
+                borderRadius: '12px',
+                padding: '25px',
+                marginBottom: '25px',
+                border: '1px solid #3a3a3a',
+            },
+            controlTitle: {
+                fontSize: '18px',
+                marginBottom: '20px',
+                color: '#ffffff',
+                fontWeight: '600',
+            },
+            controlGrid: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '20px',
+                marginBottom: '20px',
+            },
+            controlGroup: {
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+            },
+            label: {
+                fontSize: '14px',
+                fontWeight: '500',
+                color: '#b0b0b0',
+            },
+            slider: {
+                width: '100%',
+                height: '4px',
+                borderRadius: '2px',
+                outline: 'none',
+                background: '#3a3a3a',
+                cursor: 'pointer',
+            },
+            select: {
+                padding: '10px',
+                borderRadius: '6px',
+                border: '1px solid #3a3a3a',
+                background: '#333333',
+                color: '#e0e0e0',
+                fontSize: '14px',
+                cursor: 'pointer',
+            },
+            resetButton: {
+                width: '100%',
+                padding: '12px',
+                border: '1px solid #3a3a3a',
+                background: '#3a3a3a',
+                color: '#e0e0e0',
+                fontSize: '14px',
+                fontWeight: '600',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+            },
+            contentArea: {
+                background: '#2a2a2a',
+                borderRadius: '12px',
+                padding: '30px',
+                marginBottom: '25px',
+                border: '1px solid #3a3a3a',
+            },
+            section: {
+                width: '100%',
+            },
+            sectionTitle: {
+                fontSize: '20px',
+                marginBottom: '25px',
+                textAlign: 'center',
+                color: '#ffffff',
+                fontWeight: '600',
+            },
+            demoArea: {
+                minHeight: '250px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                background: '#1f1f1f',
+                borderRadius: '10px',
+                marginBottom: '25px',
+                padding: '30px',
+                border: '1px solid #333333',
+            },
+            demoBox: {
+                width: '140px',
+                height: '140px',
+                background: '#4ade80',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px',
+                fontWeight: 'bold',
+                color: '#1a1a1a',
+                boxShadow: '0 4px 20px rgba(74, 222, 128, 0.3)',
+            },
+            multiBoxContainer: {
+                display: 'flex',
+                gap: '20px',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
+            },
+            multiBox: {
+                width: '90px',
+                height: '90px',
+                background: '#4ade80',
+                borderRadius: '10px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '28px',
+                fontWeight: 'bold',
+                color: '#1a1a1a',
+                boxShadow: '0 4px 15px rgba(74, 222, 128, 0.3)',
+            },
+            buttonGrid: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                gap: '12px',
+            },
+            animButton: {
+                padding: '12px 16px',
+                border: '1px solid #3a3a3a',
+                background: '#333333',
+                color: '#e0e0e0',
+                fontSize: '14px',
+                fontWeight: '500',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+            },
+            timelineInfo: {
+                textAlign: 'center',
+                padding: '15px',
+                background: '#333333',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                fontSize: '16px',
+                color: '#e0e0e0',
+                border: '1px solid #3a3a3a',
+            },
+            cardsContainer: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                gap: '20px',
+                marginBottom: '20px',
+            },
+            card: {
+                padding: '30px',
+                borderRadius: '12px',
+                textAlign: 'center',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.3)',
+                border: '1px solid #3a3a3a',
+            },
+            cardIcon: {
+                fontSize: '64px',
+                marginBottom: '20px',
+            },
+            cardTitle: {
+                fontSize: '24px',
+                marginBottom: '10px',
+                color: '#fff',
+            },
+            cardText: {
+                fontSize: '16px',
+                opacity: 0.9,
+                color: '#fff',
+            },
+            codeContainer: {
+                background: '#2a2a2a',
+                borderRadius: '12px',
+                padding: '20px',
+                marginBottom: '25px',
+                border: '1px solid #3a3a3a',
+            },
+            codeHeader: {
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '15px',
+            },
+            codeTitle: {
+                fontSize: '16px',
+                color: '#ffffff',
+                fontWeight: '600',
+            },
+            closeButton: {
+                background: '#3a3a3a',
+                border: '1px solid #444444',
+                color: '#e0e0e0',
+                fontSize: '13px',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                fontWeight: '500',
+            },
+            codeBlock: {
+                background: '#1f1f1f',
+                padding: '16px',
+                borderRadius: '8px',
+                overflow: 'auto',
+                fontSize: '13px',
+                lineHeight: '1.6',
+                color: '#4ade80',
+                fontFamily: 'Consolas, Monaco, monospace',
+                border: '1px solid #333333',
+            },
+            footer: {
+                padding: '30px',
+                background: '#2a2a2a',
+                borderRadius: '12px',
+                fontSize: '14px',
+                border: '1px solid #3a3a3a',
+            },
+            footerGrid: {
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '25px',
+                marginBottom: '25px',
+            },
+            footerColumn: {
+                textAlign: 'left',
+            },
+            footerTitle: {
+                fontSize: '16px',
+                color: '#ffffff',
+                marginBottom: '15px',
+                fontWeight: '600',
+            },
+            footerContent: {
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+            },
+            footerStep: {
+                fontSize: '13px',
+                color: '#888888',
+                marginTop: '8px',
+                marginBottom: '4px',
+                fontWeight: '500',
+            },
+            footerCode: {
+                fontSize: '12px',
+                color: '#e0e0e0',
+                fontFamily: 'Consolas, Monaco, monospace',
+                background: '#1f1f1f',
+                padding: '8px 10px',
+                borderRadius: '6px',
+                display: 'block',
+                border: '1px solid #333333',
+            },
+            featureList: {
+                listStyle: 'none',
+                padding: '0',
+                margin: '0',
+                lineHeight: '2',
+                color: '#b0b0b0',
+                fontSize: '14px',
+            },
+            footerDivider: {
+                height: '1px',
+                background: '#3a3a3a',
+                marginBottom: '20px',
+            },
+            footerNote: {
+                fontSize: '13px',
+                opacity: 0.6,
+                textAlign: 'center',
+                color: '#888888',
+            }
+        };
+
+        // ==================== RENDER ====================
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(React.createElement(GSAPAnimationDemo));
+    </script>
+</body>
+</html>

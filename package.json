@@ -1,0 +1,37 @@
+{
+  "name": "gsap-animation-library",
+  "version": "1.0.0",
+  "description": "A complete GSAP animation wrapper library with 15+ animation presets, timeline control, stagger effects, and scroll triggers",
+  "main": "gsap-animation-library.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "gsap",
+    "animation",
+    "library",
+    "presets",
+    "timeline",
+    "stagger",
+    "scroll-trigger",
+    "fade",
+    "slide",
+    "scale",
+    "rotate",
+    "bounce",
+    "elastic"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "peerDependencies": {
+    "gsap": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Hariniha/gsap-animation-library.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Hariniha/gsap-animation-library/issues"
+  },
+  "homepage": "https://github.com/Hariniha/gsap-animation-library#readme"
+}
