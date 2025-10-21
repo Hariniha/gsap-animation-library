@@ -7,7 +7,7 @@ A powerful animation wrapper library built on GSAP 3.x with 15+ animation preset
 
 ## 🔗 Links
 
-- **[📺 Live Demo](https://your-demo-url.vercel.app)** - Interactive demo with live code generation
+- **[📺 Live Demo](https://gsap-animation-library.vercel.app/)** - Interactive demo with live code generation
 - **[📚 Complete Documentation](https://github.com/Hariniha/gsap-animation-library/blob/main/USAGE.md)** - Full usage guide with examples
 - **[📦 npm Package](https://www.npmjs.com/package/@harini_priya/gsap-animation-library)**
 
